@@ -1660,7 +1660,11 @@ bool dvmCreateInternalThread(pthread_t* pHandle, const char* name,
     int cc = pthread_create(pHandle, &threadAttr, internalThreadStart, pArgs);
     pthread_attr_destroy(&threadAttr);
     if (cc != 0) {
+<<<<<<< HEAD
+        ALOGE("internal thread creation failed");
+=======
         ALOGE("internal thread creation failed: %s", strerror(cc));
+>>>>>>> 00f7b177d7b59e45533fb92388a245df90ebe16a
         free(pArgs->name);
         free(pArgs);
         return false;
@@ -2150,11 +2154,20 @@ void dvmDetachCurrentThread()
             ALOGV("threadid=%d: last non-daemon thread", self->threadId);
             //dvmDumpAllThreads(false);
             // cond var guarded by threadListLock, which we already hold
+<<<<<<< HEAD
+            cc = pthread_cond_signal(&gDvm.vmExitCond);
+            assert(cc == 0);
+#ifdef NDEBUG
+            // not used -> variable defined but not used warning
+            (void)cc;
+#endif
+=======
             int cc = pthread_cond_signal(&gDvm.vmExitCond);
             if (cc != 0) {
                 ALOGE("pthread_cond_signal(&gDvm.vmExitCond) failed: %s", strerror(cc));
                 dvmAbort();
             }
+>>>>>>> 00f7b177d7b59e45533fb92388a245df90ebe16a
         }
     }
 
@@ -2709,11 +2722,20 @@ void dvmResumeAllThreads(SuspendCause why)
      * which may choose to wake up.  No need to wait for them.
      */
     lockThreadSuspendCount();
+<<<<<<< HEAD
+    cc = pthread_cond_broadcast(&gDvm.threadSuspendCountCond);
+    assert(cc == 0);
+#ifdef NDEBUG
+    // not used -> variable defined but not used warning
+    (void)cc;
+#endif
+=======
     int cc = pthread_cond_broadcast(&gDvm.threadSuspendCountCond);
     if (cc != 0) {
         ALOGE("pthread_cond_broadcast(&gDvm.threadSuspendCountCond) failed: %s", strerror(cc));
         dvmAbort();
     }
+>>>>>>> 00f7b177d7b59e45533fb92388a245df90ebe16a
     unlockThreadSuspendCount();
 
     LOG_THREAD("threadid=%d: ResumeAll complete", self->threadId);
@@ -2760,11 +2782,20 @@ void dvmUndoDebuggerSuspensions()
      * which may choose to wake up.  No need to wait for them.
      */
     lockThreadSuspendCount();
+<<<<<<< HEAD
+    cc = pthread_cond_broadcast(&gDvm.threadSuspendCountCond);
+    assert(cc == 0);
+#ifdef NDEBUG
+    // not used -> variable defined but not used warning
+    (void)cc;
+#endif
+=======
     int cc = pthread_cond_broadcast(&gDvm.threadSuspendCountCond);
     if (cc != 0) {
         ALOGE("pthread_cond_broadcast(&gDvm.threadSuspendCountCond) failed: %s", strerror(cc));
         dvmAbort();
     }
+>>>>>>> 00f7b177d7b59e45533fb92388a245df90ebe16a
     unlockThreadSuspendCount();
 
     unlockThreadSuspend();
@@ -3285,16 +3316,23 @@ static bool shouldShowNativeStack(Thread* thread) {
         return false;
     }
 
+<<<<<<< HEAD
+=======
     // The Signal Catcher thread? That's not interesting.
     if (thread->status == THREAD_RUNNING) {
         return false;
     }
 
+>>>>>>> 00f7b177d7b59e45533fb92388a245df90ebe16a
     // In some other native method? That's interesting.
     // We don't just check THREAD_NATIVE because native methods will be in
     // state THREAD_SUSPENDED if they're calling back into the VM, or THREAD_MONITOR
     // if they're blocked on a monitor, or one of the thread-startup states if
     // it's early enough in their life cycle (http://b/7432159).
+<<<<<<< HEAD
+    const Method* currentMethod = SAVEAREA_FROM_FP(thread->interpSave.curFrame)->method;
+    return dvmIsNativeMethod(currentMethod);
+=======
     u4* fp = thread->interpSave.curFrame;
     if (fp == NULL) {
         // The thread has no managed frames, so native frames are all there is.
@@ -3302,6 +3340,7 @@ static bool shouldShowNativeStack(Thread* thread) {
     }
     const Method* currentMethod = SAVEAREA_FROM_FP(fp)->method;
     return currentMethod != NULL && dvmIsNativeMethod(currentMethod);
+>>>>>>> 00f7b177d7b59e45533fb92388a245df90ebe16a
 }
 
 /*
