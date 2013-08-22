@@ -21,6 +21,8 @@ LOCAL_PATH:= $(call my-dir)
 
 ifneq ($(LIBENC_INCLUDED),true)
 
+LOCAL_CFLAGS += -fno-strict-aliasing -Wno-error=strict-aliasing
+
 LIBENC_INCLUDED := true
 
 enc_src_files := \
